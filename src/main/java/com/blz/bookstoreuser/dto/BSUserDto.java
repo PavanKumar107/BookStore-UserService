@@ -1,0 +1,34 @@
+package com.blz.bookstoreuser.dto;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import lombok.Data;
+
+/**
+ *  
+ * Purpose:DTO for the bookstore user data
+ * 
+ * @author: Pavan Kumar G V 
+ * @version: 4.15.1.RELEASE
+ * 
+ **/ 
+
+@Data
+public class BSUserDto {
+	@Pattern(regexp = "^[A-Z]{1,}[a-z\\s]{2,}$", message = "Name is invalid, first letter should be uppercase!")
+	private String name;
+
+	@Pattern(regexp = "([a-zA-Z0-9./.-])+.([a-zA-Z0-9./.-])?@([a-z]{2,7})+.([a-z]{2,4})+.([a-z]{2,4})?", message = "Valid format is: abc.xyz@gmail.com")
+	private String emailId;
+
+	@Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",message ="Enter valid password")
+	private String password;
+
+	@NotNull
+	private String dob;
+	
+	@NotNull
+	private String address;
+
+	@Pattern(regexp = "^[0-9]{10}$", message = "Enter valid phoneno")
+	private String Phoneno;
+}
