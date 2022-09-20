@@ -2,6 +2,7 @@ package com.blz.bookstoreuser.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,11 +40,10 @@ public class BSUserService implements IBSUserService {
 	@Override
 	public BSUserModel addUser(BSUserDto bsUserDto) {
 		BSUserModel userModel = new BSUserModel(bsUserDto);
-		userModel.setCreatedAt(LocalDateTime.now());
-		userModel.setActive(false);
+		userModel.setRegisteredDate(LocalDateTime.now());
 		userModel.setDeleted(false);
 		bsUserRepository.save(userModel);
-		String body = "User added successfully with userId " + userModel.getUserId() + " Click here to activate the user -> " + " http://localhost:8068/userservice/activateuser/" + userModel.getUserId();
+		String body = "User added successfully with userId " + userModel.getUserId();
 		String subject = "User added Successfull";
 		mailService.send(userModel.getEmailId(), subject, body);;
 		return userModel;
@@ -57,13 +57,11 @@ public class BSUserService implements IBSUserService {
 		if (isTokenPresent.isPresent()) {
 			Optional<BSUserModel>isUserPresent = bsUserRepository.findById(userId);
 			if(isUserPresent.isPresent()) {
-				isUserPresent.get().setName(bsUserDto.getName());
+				isUserPresent.get().setFullName(bsUserDto.getFullName());
 				isUserPresent.get().setEmailId(bsUserDto.getEmailId());
 				isUserPresent.get().setPassword(bsUserDto.getPassword());
-				isUserPresent.get().setDob(bsUserDto.getDob());
-				isUserPresent.get().setAddress(bsUserDto.getAddress());
-				isUserPresent.get().setPhoneno(bsUserDto.getPhoneno());
-				isUserPresent.get().setUpdatedAt(LocalDateTime.now());
+				isUserPresent.get().setDateOfBirth(bsUserDto.getDateOfBirth());
+				isUserPresent.get().setUpdatedDate(LocalDateTime.now());
 				bsUserRepository.save(isUserPresent.get());
 				String body = "User updated successfully with userId "+isUserPresent.get().getUserId();
 				String subject = "User updated Successfull";
@@ -105,7 +103,7 @@ public class BSUserService implements IBSUserService {
 	@Override
 	public Response login(String emailId, String password) {
 		Optional<BSUserModel> isEmailPresent = bsUserRepository.findByEmailId(emailId);
-		if(isEmailPresent.isPresent() && isEmailPresent.get().isActive() == true){
+		if(isEmailPresent.isPresent()){
 			if(isEmailPresent.get().getPassword().equals(password)){
 				String token = tokenUtil.createToken(isEmailPresent.get().getUserId());
 				String body = "User login successfull with userid " + isEmailPresent.get().getUserId();
@@ -115,29 +113,25 @@ public class BSUserService implements IBSUserService {
 			}
 			throw new CustomNotFoundException(400,"Invald credentials");
 		}
-		throw new CustomNotFoundException(400,"Email id is not activated or invalid email id");
+		throw new CustomNotFoundException(400,"invalid email id");
 	}
 
-	//Purpose:Method to activate the user
-	@Override
-	public BSUserModel Activation(Long userId) {
-		Optional<BSUserModel>isUserPresent = bsUserRepository.findById(userId);
-		if(isUserPresent.isPresent()) {
-			if(isUserPresent.get().isActive() == true) {
-				throw new CustomNotFoundException(400,"User is already active");
-			}else {
-				isUserPresent.get().setActive(true);
-				bsUserRepository.save(isUserPresent.get());
-				return isUserPresent.get();
-			}
-		}
-		throw new CustomNotFoundException(400,"Token is Invalid");
-	}
+	//	//Purpose:Method to activate the user
+	//	@Override
+	//	public BSUserModel Activation(Long userId) {
+	//		Optional<BSUserModel>isUserPresent = bsUserRepository.findById(userId);
+	//		if(isUserPresent.isPresent()) {
+	//				isUserPresent.get().setActive(true);
+	//				bsUserRepository.save(isUserPresent.get());
+	//				return isUserPresent.get();
+	//			}
+	//		throw new CustomNotFoundException(400,"Token is Invalid");
+	//	}
+	//
 
-
-	//Purpose:Service for reset password
+	//Purpose:Service for forgot password
 	@Override
-	public Response resetPassword(String emailId) {
+	public Response forgotPassword(String emailId) {
 		Optional<BSUserModel> isMailPresent = bsUserRepository.findByEmailId(emailId);
 		if (isMailPresent.isPresent()){
 			String token = tokenUtil.createToken(isMailPresent.get().getUserId());
@@ -165,6 +159,16 @@ public class BSUserService implements IBSUserService {
 		throw new CustomNotFoundException(400,"Token not find");
 	}
 
+	//Purpose:Service for validate user
+		@Override
+		public Boolean validateUser(String token) {
+			Long decode = tokenUtil.decodeToken(token);
+			Optional<BSUserModel> isTokenPresent = bsUserRepository.findById(decode);
+			if (isTokenPresent.isPresent())
+				return true;
+			throw new CustomNotFoundException(400, "Token not found");
+		}
+		
 	//Purpose:Service for deleting user
 	@Override
 	public Response deleteUser(Long userId,String token) {
@@ -173,7 +177,6 @@ public class BSUserService implements IBSUserService {
 		if (isTokenPresent.isPresent()) {
 			Optional<BSUserModel> isIdPresent = bsUserRepository.findById(userId);
 			if(isIdPresent.isPresent()) {
-				isIdPresent.get().setActive(false);
 				isIdPresent.get().setDeleted(true);
 				bsUserRepository.save(isIdPresent.get());
 				return new Response("success",200,isIdPresent.get());
@@ -192,7 +195,6 @@ public class BSUserService implements IBSUserService {
 		if (isTokenPresent.isPresent()) {
 			Optional<BSUserModel> isIdPresent = bsUserRepository.findById(userId);
 			if(isIdPresent.isPresent()) {
-				isIdPresent.get().setActive(true);
 				isIdPresent.get().setDeleted(false);
 				bsUserRepository.save(isIdPresent.get());
 				return new Response("success",200,isIdPresent.get());
@@ -222,6 +224,42 @@ public class BSUserService implements IBSUserService {
 			throw new  CustomNotFoundException(400,"User not present");
 		} 		
 		throw new CustomNotFoundException(400, "Token is Invalid");
+	}
+
+	@Override
+	public BSUserModel sendOtp(String token,Long userId) {
+		Long userId1 = tokenUtil.decodeToken(token);
+		Optional<BSUserModel> isUserPresent = bsUserRepository.findById(userId1);
+		if(isUserPresent.isPresent()) {
+//			Random random = new Random();
+//			isUserPresent.get().setOtp(random.nextInt(1000000));
+			isUserPresent.get().setOtp((int) (Math.random()*(999999-100000+1)+100000));
+			bsUserRepository.save(isUserPresent.get());
+			String body = "your Otp is : "+isUserPresent.get().getOtp();
+			String subject = "Otp sent sucessfully";
+			mailService.send(isUserPresent.get().getEmailId(), subject, body);
+			return isUserPresent.get();
+		}
+		throw new  CustomNotFoundException(400,"Token is Invalid");
+	}
+
+	@Override
+	public boolean verifyOtp(String token,Integer otp) {
+		Long userId1 = tokenUtil.decodeToken(token);
+		Optional<BSUserModel> isUserPresent = bsUserRepository.findById(userId1);
+		if(isUserPresent.isPresent()) {
+			if(isUserPresent.get().getOtp() == otp) {
+				isUserPresent.get().setVerify(true);
+				bsUserRepository.save(isUserPresent.get());
+				String body = "Account verified sucessfully with userId : " +isUserPresent.get().getUserId();;
+				String subject = "Account verified sucessfully";
+				mailService.send(isUserPresent.get().getEmailId(), subject, body);
+				return isUserPresent.get().isVerify();
+			}else {
+				throw new  CustomNotFoundException(400,"Invalid otp");
+			}
+		}
+		throw new  CustomNotFoundException(400,"Token is Invalid");
 	}
 }
 

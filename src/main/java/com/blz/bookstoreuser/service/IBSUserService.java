@@ -25,9 +25,9 @@ public interface IBSUserService {
 
 	Optional<BSUserModel> getUserById(Long userId, String token);
 	
-	BSUserModel Activation(Long userId);
+//	BSUserModel Activation(Long userId);
 
-	Response resetPassword(String emailId);
+	Response forgotPassword(String emailId);
 
 	BSUserModel changePassword(String token, String password);
 
@@ -36,4 +36,11 @@ public interface IBSUserService {
 	Response restoreUser(Long userId, String token);
 
 	Response deletePermanently(Long userId, String token);
+
+	BSUserModel sendOtp(String token, Long userId);
+
+	boolean verifyOtp(String token, Integer otp);
+
+	Boolean validateUser(String token);
+
 }

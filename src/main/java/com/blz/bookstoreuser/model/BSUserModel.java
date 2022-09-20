@@ -1,4 +1,5 @@
 package com.blz.bookstoreuser.model;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,27 +30,23 @@ public class BSUserModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long userId;
-	private String name;
+	private String fullName;
 	private String emailId;
 	private String password;
-	private String address;
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
-	private boolean isActive;
-	private boolean isDeleted;
-	private String dob;
-	private String Phoneno;
+	private LocalDateTime registeredDate;
+	private LocalDateTime updatedDate;
+	private String dateOfBirth;
 	private String profilePic;
+	private boolean verify;
+	private  boolean isDeleted;		
+	private int otp;
+	private LocalDate purchaseDate;
+	private LocalDate expiryDate;
 	
 	public BSUserModel(BSUserDto bsUserDto) {
-	this.name = bsUserDto.getName();
+	this.fullName = bsUserDto.getFullName();
 	this.emailId = bsUserDto.getEmailId();
 	this.password = bsUserDto.getPassword();
-	this.dob = bsUserDto.getDob();
-	this.address = bsUserDto.getAddress();
-	this.Phoneno = bsUserDto.getPhoneno();
+	this.dateOfBirth = bsUserDto.getDateOfBirth();
 	}
-	
-	
-
 }
