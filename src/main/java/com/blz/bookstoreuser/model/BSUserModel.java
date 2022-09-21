@@ -1,6 +1,8 @@
 package com.blz.bookstoreuser.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -36,6 +38,7 @@ public class BSUserModel {
 	private LocalDateTime registeredDate;
 	private LocalDateTime updatedDate;
 	private String dateOfBirth;
+	@Column(length = 1000)
 	private String profilePic;
 	private boolean verify;
 	private  boolean isDeleted;		

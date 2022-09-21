@@ -1,6 +1,10 @@
 package com.blz.bookstoreuser.service;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.blz.bookstoreuser.dto.BSUserDto;
 import com.blz.bookstoreuser.model.BSUserModel;
 import com.blz.bookstoreuser.util.Response;
@@ -25,6 +29,8 @@ public interface IBSUserService {
 
 	Optional<BSUserModel> getUserById(Long userId, String token);
 	
+	Response addProfilePic(Long userId, MultipartFile profilePic) throws IOException;
+	
 //	BSUserModel Activation(Long userId);
 
 	Response forgotPassword(String emailId);
@@ -42,5 +48,6 @@ public interface IBSUserService {
 	boolean verifyOtp(String token, Integer otp);
 
 	Boolean validateUser(String token);
+
 
 }

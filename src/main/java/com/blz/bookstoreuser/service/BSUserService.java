@@ -1,4 +1,5 @@
 package com.blz.bookstoreuser.service;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -6,6 +7,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import com.blz.bookstoreuser.dto.BSUserDto;
 import com.blz.bookstoreuser.exception.CustomNotFoundException;
 import com.blz.bookstoreuser.model.BSUserModel;
@@ -96,6 +98,18 @@ public class BSUserService implements IBSUserService {
 			return bsUserRepository.findById(userId);
 		}
 		throw new CustomNotFoundException(400,"Token is Invalid");
+	}
+	
+	//Purpose:Ability to add profile pic
+	@Override
+	public Response addProfilePic(Long userId,MultipartFile profilePic) throws IOException {
+		Optional<BSUserModel> isIdPresent = bsUserRepository.findById(userId);
+		if(isIdPresent.isPresent()) {
+			isIdPresent.get().setProfilePic(String.valueOf(profilePic.getBytes()));
+			bsUserRepository.save(isIdPresent.get());
+			return new Response("Success", 200, isIdPresent.get());
+		}
+		throw new CustomNotFoundException(400, "User not found");
 	}
 
 
@@ -231,8 +245,6 @@ public class BSUserService implements IBSUserService {
 		Long userId1 = tokenUtil.decodeToken(token);
 		Optional<BSUserModel> isUserPresent = bsUserRepository.findById(userId1);
 		if(isUserPresent.isPresent()) {
-//			Random random = new Random();
-//			isUserPresent.get().setOtp(random.nextInt(1000000));
 			isUserPresent.get().setOtp((int) (Math.random()*(999999-100000+1)+100000));
 			bsUserRepository.save(isUserPresent.get());
 			String body = "your Otp is : "+isUserPresent.get().getOtp();

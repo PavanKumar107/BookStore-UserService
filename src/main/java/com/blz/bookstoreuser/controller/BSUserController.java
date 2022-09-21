@@ -1,5 +1,6 @@
 package com.blz.bookstoreuser.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.blz.bookstoreuser.dto.BSUserDto;
 import com.blz.bookstoreuser.model.BSUserModel;
 import com.blz.bookstoreuser.service.IBSUserService;
@@ -43,7 +46,7 @@ public class BSUserController {
 	@PostMapping("/add")
 	public ResponseEntity<Response> addUser(@Valid@RequestBody BSUserDto bsUserDto) {
 		BSUserModel bsUserModel = userService.addUser(bsUserDto);
-		Response response = new Response("User inserted successfully, Check mail to activate the user", 200, bsUserModel);
+		Response response = new Response("User added successfully", 200, bsUserModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);	
 	}
 
@@ -150,6 +153,13 @@ public class BSUserController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	@PostMapping("/addprofilepic/{userId}")
+	public ResponseEntity<Response> addProfilePic(@PathVariable Long userId,@RequestParam MultipartFile profilePic) throws IOException {
+		Response bsUserModel = userService.addProfilePic(userId,profilePic);
+		Response response = new Response("Profile pic uploaded sucessfully ", 200, bsUserModel);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
 	/**
 	 * Purpose: To restore the user
 	 * @Param: token and id
@@ -175,7 +185,7 @@ public class BSUserController {
 	@PutMapping("/sendotp/{userId}")
 	public ResponseEntity<Response> sendOtp(@RequestHeader String token,@PathVariable Long userId) {
 		BSUserModel bsUserModel = userService.sendOtp(token,userId);
-		Response response = new Response("User deleted permanently ", 200, bsUserModel);
+		Response response = new Response("Otp sent sucessfully ", 200, bsUserModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);	
 	}
 	
