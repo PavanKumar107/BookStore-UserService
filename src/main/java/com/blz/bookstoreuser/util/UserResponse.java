@@ -11,11 +11,11 @@ import lombok.Data;
  **/ 
 @Data
 @AllArgsConstructor
-public class Response {
+public class UserResponse {
     private String message;
     private int errorCode;
     private Object token;
    
-    public Response() {
+    public UserResponse() {
     }
 }

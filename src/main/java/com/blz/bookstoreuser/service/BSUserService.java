@@ -12,8 +12,8 @@ import com.blz.bookstoreuser.dto.BSUserDto;
 import com.blz.bookstoreuser.exception.CustomNotFoundException;
 import com.blz.bookstoreuser.model.BSUserModel;
 import com.blz.bookstoreuser.reposiitory.BSUserRepository;
-import com.blz.bookstoreuser.util.Response;
 import com.blz.bookstoreuser.util.TokenUtil;
+import com.blz.bookstoreuser.util.UserResponse;
 
 /**
  *  
@@ -102,12 +102,12 @@ public class BSUserService implements IBSUserService {
 	
 	//Purpose:Ability to add profile pic
 	@Override
-	public Response addProfilePic(Long userId,MultipartFile profilePic) throws IOException {
+	public UserResponse addProfilePic(Long userId,MultipartFile profilePic) throws IOException {
 		Optional<BSUserModel> isIdPresent = bsUserRepository.findById(userId);
 		if(isIdPresent.isPresent()) {
 			isIdPresent.get().setProfilePic(String.valueOf(profilePic.getBytes()));
 			bsUserRepository.save(isIdPresent.get());
-			return new Response("Success", 200, isIdPresent.get());
+			return new UserResponse("Success", 200, isIdPresent.get());
 		}
 		throw new CustomNotFoundException(400, "User not found");
 	}
@@ -115,7 +115,7 @@ public class BSUserService implements IBSUserService {
 
 	//Purpose:Login service
 	@Override
-	public Response login(String emailId, String password) {
+	public UserResponse login(String emailId, String password) {
 		Optional<BSUserModel> isEmailPresent = bsUserRepository.findByEmailId(emailId);
 		if(isEmailPresent.isPresent()){
 			if(isEmailPresent.get().getPassword().equals(password)){
@@ -123,7 +123,7 @@ public class BSUserService implements IBSUserService {
 				String body = "User login successfull with userid " + isEmailPresent.get().getUserId();
 				String subject =  "mail sent Successfully";
 				mailService.send(isEmailPresent.get().getEmailId(), subject, body);
-				return new Response("User login succesfull",200,token);
+				return new UserResponse("User login succesfull",200,token);
 			}
 			throw new CustomNotFoundException(400,"Invald credentials");
 		}
@@ -145,14 +145,14 @@ public class BSUserService implements IBSUserService {
 
 	//Purpose:Service for forgot password
 	@Override
-	public Response forgotPassword(String emailId) {
+	public UserResponse forgotPassword(String emailId) {
 		Optional<BSUserModel> isMailPresent = bsUserRepository.findByEmailId(emailId);
 		if (isMailPresent.isPresent()){
 			String token = tokenUtil.createToken(isMailPresent.get().getUserId());
 			String url = "http://localhost:8068/userservice/resetpassword "+token;
 			String subject = "Reset password Successfully";
 			mailService.send(isMailPresent.get().getEmailId(), subject, url);
-			return new Response("Reset password",200,token);
+			return new UserResponse("Reset password",200,token);
 		}
 		throw new CustomNotFoundException(400, "Email Not Found");
 	}
@@ -175,17 +175,18 @@ public class BSUserService implements IBSUserService {
 
 	//Purpose:Service for validate user
 		@Override
-		public Boolean validateUser(String token) {
+		public BSUserModel validateUser(String token) {
 			Long decode = tokenUtil.decodeToken(token);
 			Optional<BSUserModel> isTokenPresent = bsUserRepository.findById(decode);
-			if (isTokenPresent.isPresent())
-				return true;
+			if (isTokenPresent.isPresent()) {
+				return isTokenPresent.get();
+			}
 			throw new CustomNotFoundException(400, "Token not found");
 		}
 		
 	//Purpose:Service for deleting user
 	@Override
-	public Response deleteUser(Long userId,String token) {
+	public UserResponse deleteUser(Long userId,String token) {
 		Long decode = tokenUtil.decodeToken(token);
 		Optional<BSUserModel> isTokenPresent = bsUserRepository.findById(decode);
 		if (isTokenPresent.isPresent()) {
@@ -193,7 +194,7 @@ public class BSUserService implements IBSUserService {
 			if(isIdPresent.isPresent()) {
 				isIdPresent.get().setDeleted(true);
 				bsUserRepository.save(isIdPresent.get());
-				return new Response("success",200,isIdPresent.get());
+				return new UserResponse("success",200,isIdPresent.get());
 			}else {
 				throw new  CustomNotFoundException(400,"User not present");
 			}
@@ -203,7 +204,7 @@ public class BSUserService implements IBSUserService {
 
 	//Purpose:Service to restore users
 	@Override
-	public Response restoreUser(Long userId,String token) {
+	public UserResponse restoreUser(Long userId,String token) {
 		Long decode = tokenUtil.decodeToken(token);
 		Optional<BSUserModel> isTokenPresent = bsUserRepository.findById(decode);
 		if (isTokenPresent.isPresent()) {
@@ -211,7 +212,7 @@ public class BSUserService implements IBSUserService {
 			if(isIdPresent.isPresent()) {
 				isIdPresent.get().setDeleted(false);
 				bsUserRepository.save(isIdPresent.get());
-				return new Response("success",200,isIdPresent.get());
+				return new UserResponse("success",200,isIdPresent.get());
 			}else {
 				throw new  CustomNotFoundException(400,"User not present");
 			}
@@ -221,7 +222,7 @@ public class BSUserService implements IBSUserService {
 
 	//Purpose:Service to delete user permanently
 	@Override
-	public Response deletePermanently(Long userId, String token) {
+	public UserResponse deletePermanently(Long userId, String token) {
 		Long userId1 = tokenUtil.decodeToken(token);
 		Optional<BSUserModel> isUserPresent = bsUserRepository.findById(userId1);
 		if(isUserPresent.isPresent()) {
@@ -232,7 +233,7 @@ public class BSUserService implements IBSUserService {
 					String body = "User deleted permanently with userId"+isUserPresent.get().getUserId();
 					String subject = "User deleted Successfully";
 					mailService.send(isUserPresent.get().getEmailId(), subject, body);
-					return new Response("Success", 200, isIdPresent.get());
+					return new UserResponse("Success", 200, isIdPresent.get());
 				}
 			}
 			throw new  CustomNotFoundException(400,"User not present");
@@ -257,8 +258,8 @@ public class BSUserService implements IBSUserService {
 
 	@Override
 	public boolean verifyOtp(String token,Integer otp) {
-		Long userId1 = tokenUtil.decodeToken(token);
-		Optional<BSUserModel> isUserPresent = bsUserRepository.findById(userId1);
+		Long userId = tokenUtil.decodeToken(token);
+		Optional<BSUserModel> isUserPresent = bsUserRepository.findById(userId);
 		if(isUserPresent.isPresent()) {
 			if(isUserPresent.get().getOtp() == otp) {
 				isUserPresent.get().setVerify(true);
