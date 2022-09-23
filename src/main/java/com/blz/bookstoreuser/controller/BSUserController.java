@@ -136,13 +136,22 @@ public class BSUserController {
 	
 	/**
 	 * Purpose:Validate user
+	 * @return 
 	 * @Param: token
 	 */
 	@GetMapping("/validateuser/{token}")
-	public BSUserModel validateUser(@PathVariable String token) {
+	public UserResponse validateUser(@PathVariable String token) {
 		return userService.validateUser(token);
 	}
+	
+	
+	@GetMapping("/validateuserid/{token}")
+	public Boolean validateUserId(@PathVariable String token) {
+		return userService.validateUserId(token);
+	}
 
+
+	
 	/**
 	 * Purpose:To delete the user
 	 * @Param: token and id
@@ -183,6 +192,11 @@ public class BSUserController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
+	/**
+	 * Purpose:To send otp to the user
+	 * @Param: token and id
+	 */
+	
 	@PutMapping("/sendotp/{userId}")
 	public ResponseEntity<UserResponse> sendOtp(@RequestHeader String token,@PathVariable Long userId) {
 		BSUserModel bsUserModel = userService.sendOtp(token,userId);
@@ -190,12 +204,14 @@ public class BSUserController {
 		return new ResponseEntity<>(response, HttpStatus.OK);	
 	}
 	
-	
+	/**
+	 * Purpose:To verify the otp
+	 * @Param: token and otp
+	 */
 	@PutMapping("/verifyotp/{otp}")
 	public ResponseEntity<UserResponse> verifyOtp(@RequestHeader String token,@PathVariable Integer otp) {
 		boolean bsUserModel = userService.verifyOtp(token,otp);
 		UserResponse response = new UserResponse("Otp verified sucessfully ", 200, bsUserModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-
 }

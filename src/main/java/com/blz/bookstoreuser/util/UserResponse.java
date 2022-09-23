@@ -1,6 +1,7 @@
 package com.blz.bookstoreuser.util;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *  
@@ -11,11 +12,10 @@ import lombok.Data;
  **/ 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserResponse {
     private String message;
     private int errorCode;
     private Object token;
    
-    public UserResponse() {
-    }
 }

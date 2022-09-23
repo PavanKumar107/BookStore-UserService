@@ -99,7 +99,7 @@ public class BSUserService implements IBSUserService {
 		}
 		throw new CustomNotFoundException(400,"Token is Invalid");
 	}
-	
+
 	//Purpose:Ability to add profile pic
 	@Override
 	public UserResponse addProfilePic(Long userId,MultipartFile profilePic) throws IOException {
@@ -174,16 +174,27 @@ public class BSUserService implements IBSUserService {
 	}
 
 	//Purpose:Service for validate user
-		@Override
-		public BSUserModel validateUser(String token) {
-			Long decode = tokenUtil.decodeToken(token);
-			Optional<BSUserModel> isTokenPresent = bsUserRepository.findById(decode);
-			if (isTokenPresent.isPresent()) {
-				return isTokenPresent.get();
-			}
-			throw new CustomNotFoundException(400, "Token not found");
+	@Override
+	public UserResponse validateUser(String token) {
+		Long decode = tokenUtil.decodeToken(token);
+		Optional<BSUserModel> isTokenPresent = bsUserRepository.findById(decode);
+		if (isTokenPresent.isPresent()) {
+			return new UserResponse("User validated sucessfully",200,isTokenPresent.get());
 		}
-		
+		throw new CustomNotFoundException(400, "Token not found");
+	}
+
+	//Purpose:Service for validate user
+	@Override
+	public Boolean validateUserId(String token) {
+		Long decode = tokenUtil.decodeToken(token);
+		Optional<BSUserModel> isTokenPresent = bsUserRepository.findById(decode);
+		if (isTokenPresent.isPresent()) {
+			return true;
+		}
+		throw new CustomNotFoundException(400, "Token not found");
+	}
+
 	//Purpose:Service for deleting user
 	@Override
 	public UserResponse deleteUser(Long userId,String token) {
@@ -241,6 +252,7 @@ public class BSUserService implements IBSUserService {
 		throw new CustomNotFoundException(400, "Token is Invalid");
 	}
 
+	//Purpose:method to send OTP to the user
 	@Override
 	public BSUserModel sendOtp(String token,Long userId) {
 		Long userId1 = tokenUtil.decodeToken(token);
@@ -256,6 +268,7 @@ public class BSUserService implements IBSUserService {
 		throw new  CustomNotFoundException(400,"Token is Invalid");
 	}
 
+	//Purpose:method to verify OTP	
 	@Override
 	public boolean verifyOtp(String token,Integer otp) {
 		Long userId = tokenUtil.decodeToken(token);

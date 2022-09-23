@@ -47,7 +47,9 @@ public interface IBSUserService {
 
 	boolean verifyOtp(String token, Integer otp);
 
-	BSUserModel validateUser(String token);
+	UserResponse validateUser(String token);
+
+	Boolean validateUserId(String token);
 
 
 }

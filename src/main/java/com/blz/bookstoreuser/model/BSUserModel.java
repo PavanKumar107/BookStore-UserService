@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 /**
  *  
- * Purpose:Model for the bookstore User data Registration
+ * Purpose:Model class for the user
  * 
  * @author: Pavan Kumar G V 
  * @version: 4.15.1.RELEASE

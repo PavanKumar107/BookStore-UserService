@@ -7,6 +7,16 @@ import org.springframework.stereotype.Repository;
 
 import com.blz.bookstoreuser.model.BSUserModel;
 
+/**
+ *  
+ * Purpose:Repository for book service
+ * 
+ * @author: Pavan Kumar G V 
+ * @version: 4.15.1.RELEASE
+ * 
+ **/ 
+
+
 @Repository
 public interface BSUserRepository extends JpaRepository<BSUserModel, Long> {
 

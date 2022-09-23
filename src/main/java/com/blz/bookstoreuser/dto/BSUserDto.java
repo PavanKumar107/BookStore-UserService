@@ -23,6 +23,7 @@ public class BSUserDto {
 	@Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",message ="Enter valid password")
 	private String password;
 	
+	@NotNull
 	private String dateOfBirth;
 
 }
