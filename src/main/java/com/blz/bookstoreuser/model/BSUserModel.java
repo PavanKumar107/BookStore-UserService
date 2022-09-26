@@ -1,6 +1,7 @@
 package com.blz.bookstoreuser.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,8 +44,8 @@ public class BSUserModel {
 	private boolean verify;
 	private  boolean isDeleted;		
 	private int otp;
-	private LocalDate purchaseDate;
-	private LocalDate expiryDate;
+	private Date purchaseDate;
+	private Date expiryDate;
 	
 	public BSUserModel(BSUserDto bsUserDto) {
 	this.fullName = bsUserDto.getFullName();

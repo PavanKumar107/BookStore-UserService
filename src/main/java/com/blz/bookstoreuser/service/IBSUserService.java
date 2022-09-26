@@ -43,6 +43,8 @@ public interface IBSUserService {
 
 	UserResponse deletePermanently(Long userId, String token);
 
+	UserResponse purchaseSubscription(String token);
+
 	BSUserModel sendOtp(String token, Long userId);
 
 	boolean verifyOtp(String token, Integer otp);
@@ -50,6 +52,5 @@ public interface IBSUserService {
 	UserResponse validateUser(String token);
 
 	Boolean validateUserId(String token);
-
 
 }

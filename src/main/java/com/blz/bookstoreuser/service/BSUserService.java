@@ -1,6 +1,8 @@
 package com.blz.bookstoreuser.service;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -250,6 +252,24 @@ public class BSUserService implements IBSUserService {
 			throw new  CustomNotFoundException(400,"User not present");
 		} 		
 		throw new CustomNotFoundException(400, "Token is Invalid");
+	}
+	
+	@Override
+	public UserResponse purchaseSubscription(String token) {
+		Long userId = tokenUtil.decodeToken(token);
+		Optional<BSUserModel> isUserPresent = bsUserRepository.findById(userId);
+		if(isUserPresent.isPresent()) {
+			isUserPresent.get().setPurchaseDate(new Date());
+			Date date = new Date();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(date);
+			calendar.add(Calendar.MONTH, 12);
+			Date expireDate = calendar.getTime();
+			isUserPresent.get().setExpiryDate(expireDate);
+			bsUserRepository.save(isUserPresent.get());
+			return new UserResponse("Purchase date and expiry date set Successfull", 200, isUserPresent.get());
+		}
+		throw new CustomNotFoundException(400, "User Not Found");
 	}
 
 	//Purpose:method to send OTP to the user
